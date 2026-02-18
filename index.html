@@ -1,267 +1,33 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drive & GAS Link Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smart Glasses AR</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+  </head>
+  <body>
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      
+      <a-assets>
+        <a-img id="infoPanel" src="./image.png"></a-img>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
         
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f1f5f9;
-            background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
-            background-size: 24px 24px;
-        }
+        <a-entity position="0 0 0.1">
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-        }
+            <a-plane color="#000" opacity="0.6" width="1.2" height="0.8" position="0 0 0"></a-plane>
 
-        .result-enter {
-            animation: slideUp 0.4s ease-out forwards;
-        }
+            <a-plane color="#00ffff" width="1.25" height="0.85" position="0 0 -0.01" material="wireframe: true; wireframeLinewidth: 2"></a-plane>
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+            <a-image src="#infoPanel" width="1" height="0.6" position="0 0 0.01"></a-image>
 
-        .copy-success {
-            background-color: #10b981 !important;
-            color: white !important;
-        }
-    </style>
-</head>
-<body class="min-h-screen py-12 px-4">
-    <div class="max-w-5xl mx-auto">
-        
-        <!-- Header Section -->
-        <header class="text-center mb-12">
-            <div class="inline-flex items-center justify-center p-3 bg-blue-600 rounded-2xl shadow-lg mb-4 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            </div>
-            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Drive & GAS Link Studio</h1>
-            <p class="text-slate-500 max-w-lg mx-auto">
-                複雑な共有URLを、あなたのプロジェクトに最適な形式へ一瞬で変換。
-            </p>
-        </header>
+        </a-entity>
 
-        <!-- Main Input Interface -->
-        <main class="space-y-8">
-            <div class="glass-card p-1 rounded-3xl overflow-hidden">
-                <div class="p-6 bg-white rounded-[1.4rem]">
-                    <div class="relative group">
-                        <input type="text" id="inputUrl" 
-                            class="w-full pl-4 pr-32 py-5 text-lg bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:ring-0 outline-none transition-all placeholder:text-slate-400"
-                            placeholder="共有URLをここに貼り付け...">
-                        <div class="absolute right-2 top-2 bottom-2 flex gap-2">
-                            <button onclick="resetForm()" class="px-4 text-slate-400 hover:text-slate-600 font-medium transition-colors">
-                                クリア
-                            </button>
-                            <button onclick="convertUrl()" 
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 rounded-xl shadow-md transition-all active:scale-95">
-                                変換
-                            </button>
-                        </div>
-                    </div>
-                    <p id="errorMessage" class="hidden text-rose-500 text-sm mt-3 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        URLの形式が正しくありません。再度確認してください。
-                    </p>
-                </div>
-            </div>
-
-            <!-- Drive Results Area -->
-            <div id="driveResults" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 result-enter">
-                <div class="md:col-span-2">
-                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest px-2">変換結果: Google ドライブ ファイル</h2>
-                </div>
-
-                <!-- Card 1: View Link -->
-                <div class="glass-card p-6 rounded-3xl flex flex-col justify-between">
-                    <div>
-                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-lg mb-1">画像・音楽 直リンク</h3>
-                        <p class="text-slate-500 text-sm mb-4 leading-relaxed">ウェブサイトへの埋め込みやメディア再生に最適です。</p>
-                    </div>
-                    <div class="relative">
-                        <input type="text" readonly id="outImage" class="w-full bg-slate-100/50 p-4 pr-24 rounded-2xl text-sm font-mono text-slate-600 border border-slate-200">
-                        <button onclick="copy('outImage', this)" class="absolute right-2 top-2 bottom-2 bg-slate-800 text-white px-4 rounded-xl text-xs font-bold hover:bg-slate-900 transition-all">コピー</button>
-                    </div>
-                </div>
-
-                <!-- Card 2: Legacy -->
-                <div class="glass-card p-6 rounded-3xl flex flex-col justify-between">
-                    <div>
-                        <div class="w-10 h-10 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-lg mb-1">従来の直リンク (UC)</h3>
-                        <p class="text-slate-500 text-sm mb-4 leading-relaxed">API連携や古いスクリプトで標準的な uc?id= 形式。</p>
-                    </div>
-                    <div class="relative">
-                        <input type="text" readonly id="outLegacy" class="w-full bg-slate-100/50 p-4 pr-24 rounded-2xl text-sm font-mono text-slate-600 border border-slate-200">
-                        <button onclick="copy('outLegacy', this)" class="absolute right-2 top-2 bottom-2 bg-slate-800 text-white px-4 rounded-xl text-xs font-bold hover:bg-slate-900 transition-all">コピー</button>
-                    </div>
-                </div>
-
-                <!-- Card 3: Preview -->
-                <div class="glass-card p-6 rounded-3xl flex flex-col justify-between">
-                    <div>
-                        <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-lg mb-1">PDF / 動画プレビュー</h3>
-                        <p class="text-slate-500 text-sm mb-4 leading-relaxed">iframe内での埋め込み表示に使用します。</p>
-                    </div>
-                    <div class="relative">
-                        <input type="text" readonly id="outPreview" class="w-full bg-slate-100/50 p-4 pr-24 rounded-2xl text-sm font-mono text-slate-600 border border-slate-200">
-                        <button onclick="copy('outPreview', this)" class="absolute right-2 top-2 bottom-2 bg-slate-800 text-white px-4 rounded-xl text-xs font-bold hover:bg-slate-900 transition-all">コピー</button>
-                    </div>
-                </div>
-
-                <!-- Card 4: Download -->
-                <div class="glass-card p-6 rounded-3xl flex flex-col justify-between">
-                    <div>
-                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-lg mb-1">強制ダウンロード</h3>
-                        <p class="text-slate-500 text-sm mb-4 leading-relaxed">アクセスした瞬間に保存ダイアログを表示させます。</p>
-                    </div>
-                    <div class="relative">
-                        <input type="text" readonly id="outDownload" class="w-full bg-slate-100/50 p-4 pr-24 rounded-2xl text-sm font-mono text-slate-600 border border-slate-200">
-                        <button onclick="copy('outDownload', this)" class="absolute right-2 top-2 bottom-2 bg-slate-800 text-white px-4 rounded-xl text-xs font-bold hover:bg-slate-900 transition-all">コピー</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GAS Results Area -->
-            <div id="gasResults" class="hidden result-enter">
-                <div class="mb-4">
-                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest px-2">変換結果: GAS ウェブアプリ</h2>
-                </div>
-                <div class="glass-card p-8 rounded-3xl border-l-8 border-indigo-500">
-                    <div class="flex flex-col md:flex-row gap-6 items-start">
-                        <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                        </div>
-                        <div class="flex-1 space-y-4">
-                            <div>
-                                <h3 class="font-bold text-slate-800 text-xl">Iframe 埋め込み用コード</h3>
-                                <p class="text-slate-500 text-sm">Webサイトにアプリを統合するためのHTMLタグです。</p>
-                            </div>
-                            <div class="relative">
-                                <textarea readonly id="outGasIframe" rows="3" class="w-full bg-slate-100/50 p-4 pr-24 rounded-2xl text-sm font-mono text-slate-600 border border-slate-200 resize-none"></textarea>
-                                <button onclick="copy('outGasIframe', this)" class="absolute right-3 top-3 bg-indigo-600 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-md">コピー</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Footer / Tips -->
-        <footer class="mt-16 border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between gap-8 text-slate-400 text-sm">
-            <div class="max-w-md">
-                <h4 class="font-bold text-slate-600 mb-2">💡 Tips</h4>
-                <p>Googleドライブのファイルは必ず「共有」ボタンから「リンクを知っている全員が閲覧可能」に設定してください。</p>
-            </div>
-            <div class="text-right">
-                <p>© 2024 Link Studio - Powered by Google API Formats</p>
-            </div>
-        </footer>
-    </div>
-
-    <script>
-        function extractInfo(url) {
-            const drivePatterns = [
-                /\/file\/d\/([a-zA-Z0-9_-]+)/,
-                /\/d\/([a-zA-Z0-9_-]+)/,
-                /id=([a-zA-Z0-9_-]+)/
-            ];
-            const gasPattern = /script\.google\.com\/macros\/s\/([a-zA-Z0-9_-]+)\/exec/;
-
-            const gasMatch = url.match(gasPattern);
-            if (gasMatch) {
-                return { type: 'gas', id: gasMatch[1], fullUrl: url };
-            }
-
-            for (let pattern of drivePatterns) {
-                const match = url.match(pattern);
-                if (match && match[1]) {
-                    return { type: 'drive', id: match[1] };
-                }
-            }
-            return null;
-        }
-
-        function convertUrl() {
-            const input = document.getElementById('inputUrl').value.trim();
-            const errorMsg = document.getElementById('errorMessage');
-            const driveRes = document.getElementById('driveResults');
-            const gasRes = document.getElementById('gasResults');
-            
-            const info = extractInfo(input);
-
-            if (!info) {
-                errorMsg.classList.remove('hidden');
-                driveRes.classList.add('hidden');
-                gasRes.classList.add('hidden');
-                return;
-            }
-
-            errorMsg.classList.add('hidden');
-
-            if (info.type === 'drive') {
-                driveRes.classList.remove('hidden');
-                gasRes.classList.add('hidden');
-                document.getElementById('outImage').value = `https://drive.google.com/uc?export=view&id=${info.id}`;
-                document.getElementById('outLegacy').value = `https://docs.google.com/uc?id=${info.id}`;
-                document.getElementById('outPreview').value = `https://drive.google.com/file/d/${info.id}/preview`;
-                document.getElementById('outDownload').value = `https://drive.google.com/uc?export=download&id=${info.id}`;
-            } else if (info.type === 'gas') {
-                gasRes.classList.remove('hidden');
-                driveRes.classList.add('hidden');
-                const iframeTag = `<iframe src="${info.fullUrl}" width="100%" height="600" frameborder="0"></iframe>`;
-                document.getElementById('outGasIframe').value = iframeTag;
-            }
-        }
-
-        function resetForm() {
-            document.getElementById('inputUrl').value = '';
-            document.getElementById('errorMessage').classList.add('hidden');
-            document.getElementById('driveResults').classList.add('hidden');
-            document.getElementById('gasResults').classList.add('hidden');
-            document.getElementById('inputUrl').focus();
-        }
-
-        function copy(elementId, btn) {
-            const copyText = document.getElementById(elementId);
-            copyText.select();
-            document.execCommand('copy');
-            
-            // Visual feedback on button
-            const originalText = btn.innerText;
-            btn.innerText = 'コピー完了';
-            btn.classList.add('copy-success');
-            
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.classList.remove('copy-success');
-            }, 1500);
-        }
-
-        document.getElementById('inputUrl').addEventListener('keypress', (e) => { 
-            if (e.key === 'Enter') convertUrl(); 
-        });
-    </script>
-</body>
+      </a-entity>
+    </a-scene>
+  </body>
 </html>
